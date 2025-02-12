@@ -9,7 +9,7 @@
 ### Coloque o arquivo .bat que deseja desencriptar nesta pasta!
 
 ## Terceiro Passo
-### Renomeie o seu arquivo .bat para "1" (Não retire as extenções como .bat no final!).
+### Renomeie o seu arquivo .bat para "1" (Não retire as extensões como .bat no final!).
 
 ## Quarto Passo
 ### Abra o powershell (como administrador!)
