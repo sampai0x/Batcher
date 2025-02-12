@@ -11,10 +11,10 @@
 ## Terceiro Passo
 ### Renomeie o seu arquivo .bat para "1" (Não retire as extenções como .bat no final!).
 
-Quarto Passo
-Abra o powershell (como administrador!)
+## Quarto Passo
+### Abra o powershell (como administrador!)
 
-Quinto Passo
-Coloquei o seguinte comando, "python  C:\BatchSolver\2.py --file C:\BatchSolver\1.bat" (retire as aspas!)
+## Quinto Passo
+### Coloque o seguinte comando, "python  C:\BatchSolver\2.py --file C:\BatchSolver\1.bat" (retire as aspas!)
 
-(em algus casos pode nao funcionar depende muito do arquivo!)
+##### (em algus casos pode nao funcionar depende muito do arquivo!)
