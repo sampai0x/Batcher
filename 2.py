@@ -66,7 +66,6 @@ class BatchDeobfuscator:
         if os.name == "nt":
             for env_var, value in os.environ.items():
                 self.variables[env_var.lower()] = value
-        # fake it till you make it
         else:
             self.variables = {
                 "allusersprofile": "C:\\ProgramData",
@@ -120,7 +119,6 @@ class BatchDeobfuscator:
                 "__compat_layer": "DetectorsMessageBoxErrors",
             }
 
-        # There are 211 lines coming out of curl --help, so I won't be parsing all the options
         self.curl_parser = argparse.ArgumentParser()
         self.curl_parser.add_argument("-o", "--output", dest="output", help="Write to file instead of stdout")
         self.curl_parser.add_argument(
@@ -131,7 +129,6 @@ class BatchDeobfuscator:
             help="Write output to a file named as the remote file",
         )
         self.curl_parser.add_argument("url", help="URL")
-        # Patch all possible one-character arguments
         for char in string.ascii_letters + string.digits + "#:":
             try:
                 self.curl_parser.add_argument(f"-{char}", action="store_true")
@@ -168,7 +165,6 @@ class BatchDeobfuscator:
                 if match.group("open_paren") is None or match.group("close_paren") is not None:
                     yield ")"
             else:
-                # Got an ELSE statement
                 if match.group("if_statement") == "if":
                     yield ") else ("
                 else:
@@ -176,7 +172,6 @@ class BatchDeobfuscator:
                 yield match.group("false_statement")
                 yield ")"
         else:
-            # Broken statement, maybe a re-run
             yield statement
 
     def split_for_statement(self, statement):
@@ -197,7 +192,6 @@ class BatchDeobfuscator:
             if match.group("open_paren") is None or match.group("close_paren") is not None:
                 yield ")"
         else:
-            # Broken statement, maybe a re-run
             yield statement
 
     def get_commands_special_statement(self, statement):
@@ -217,14 +211,12 @@ class BatchDeobfuscator:
         counter = 0
         start_command = 0
         for char in logical_line:
-            # print(f"C:{char}, S:{state}")
-            if state == "init":  # init state
-                if char == '"':  # quote is on
+            if state == "init": 
+                if char == '"': 
                     state = "str_s"
                 elif char == "^":
                     state = "escape"
                 elif char == "&" and logical_line[counter - 1] == ">":
-                    # Usually an output redirection, we want to keep it on the same line
                     pass
                 elif char == "&" or char == "|":
                     cmd = logical_line[start_command:counter].strip()
@@ -286,7 +278,6 @@ class BatchDeobfuscator:
                         pattern = re.compile(re.escape(s1), re.IGNORECASE)
                         value = pattern.sub(re.escape(s2), value)
             else:
-                # It should be "variable", and interpret the empty echo later, but that would need a better simulator
                 return value
 
         if value == "^":
@@ -303,7 +294,6 @@ class BatchDeobfuscator:
         stop_parsing = len(cmd)
 
         for idx, char in enumerate(cmd):
-            # print(f"{idx}. C: {char} S: {state}, {var_value}")
             if idx >= stop_parsing:
                 break
             if state == "init":
@@ -384,7 +374,6 @@ class BatchDeobfuscator:
         return (var_name, var_value)
 
     def interpret_curl(self, cmd):
-        # Batch specific obfuscation that is not handled before for echo/variable purposes, can be stripped here
         cmd = cmd.replace('""', "")
         split_cmd = shlex.split(cmd, posix=False)
         args, unknown = self.curl_parser.parse_known_args(split_cmd[1:])
@@ -420,10 +409,6 @@ class BatchDeobfuscator:
         if normalized_comm[:3].lower() == "rem":
             return
 
-        # We need to keep the last space in case the command is "set EXP=43 " so that the value will be "43 "
-        # normalized_comm = normalized_comm.strip()
-
-        # remove paranthesis
         index = 0
         last = len(normalized_comm) - 1
         while index < last and (normalized_comm[index] == " " or normalized_comm[index] == "("):
@@ -444,11 +429,6 @@ class BatchDeobfuscator:
 
         normalized_comm_lower = normalized_comm.lower()
         if normalized_comm_lower.startswith("call"):
-            # TODO: Not a perfect interpretation as the @ sign of the recursive command shouldn't be remove
-            # This shouldn't work:
-            # call @set EXP=43
-            # But this should:
-            # call set EXP=43
             self.interpret_command(normalized_comm[5:])
             return
 
@@ -456,8 +436,6 @@ class BatchDeobfuscator:
             start_re = (
                 r"start(.exe)?"
                 r"(\/min|\/max|\/wait|\/low|\/normal|\/abovenormal|\/belownormal|\/high|\/realtime|\/b|\/i|\/w|\s+)*"
-                # TODO: Add Node + Affinity options
-                # TODO: Add title + path keys
                 r"(?P<cmd>.*)"
             )
             match = re.match(start_re, normalized_comm, re.IGNORECASE)
@@ -473,11 +451,9 @@ class BatchDeobfuscator:
             return
 
         if normalized_comm_lower.startswith("setlocal"):
-            # Just so we don't go into the set command
             return
 
         if normalized_comm_lower.startswith("set"):
-            # interpreting set command
             var_name, var_value = self.interpret_set(normalized_comm[3:])
             if var_value == "":
                 if var_name.lower() in self.variables:
@@ -492,7 +468,6 @@ class BatchDeobfuscator:
         if normalized_comm_lower.startswith("powershell"):
             self.interpret_powershell(normalized_comm)
 
-    # pushdown automata
     def normalize_command(self, command):
         if command[:3].lower() == "rem":
             return command
@@ -502,7 +477,6 @@ class BatchDeobfuscator:
         stack = []
         traits = {"start_with_var": False, "var_used": 0}
         for char in command:
-            # print(f"C:{char} S:{state} N:{normalized_com}")
             if state == "init":  # init state
                 if char == '"':  # quote is on
                     state = "str_s"
@@ -511,10 +485,6 @@ class BatchDeobfuscator:
                     else:
                         normalized_com += char
                 elif char == "," or char == ";":  # or char == "\t": EDIT: How about we keep those tabs?
-                    # commas (",") are replaced by spaces, unless they are part of a string in doublequotes
-                    # semicolons (";") are replaced by spaces, unless they are part of a string in doublequotes
-                    # tabs are replaced by a single space
-                    # http://www.robvanderwoude.com/parameters.php
                     normalized_com += " "
                 elif char == "^":  # next character must be escaped
                     stack.append(state)
@@ -585,9 +555,6 @@ class BatchDeobfuscator:
                     "%~t",
                     "%~z",
                 ]:
-                    # https://www.programming-books.io/essential/batch/-percent-tilde-f4263820c2db41e399c77259970464f1.html
-                    # TODO: Better handling of letter combination (i.e. %~xsa0)
-                    # Could also return different values of script.bat if we want to parse the options
                     normalized_com += char
                     if char == "0":
                         value = "script.bat"
@@ -711,8 +678,6 @@ class BatchDeobfuscator:
             for logical_line in self.read_logical_line(file_path):
                 self.analyze_logical_line(logical_line, working_directory, f, extracted_files)
 
-        # Figure out if we're dealing with a Complex One-Liner
-        # Ignore empty lines to determine if it is a One-Liner
         self.traits["one-liner"] = False
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             firstline = False
