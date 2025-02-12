@@ -106,7 +106,7 @@ class BatchDeobfuscator:
                 "programw6432": "C:\\Program Files",
                 "psmodulepath": "C:\\WINDOWS\\system32\\WindowsPowerShell\\v1.0\\Modules\\",
                 "public": "C:\\Users\\Public",
-                "random": "4",  # https://xkcd.com/221/
+                "random": "4",  
                 "sessionname": "Console",
                 "systemdrive": "C:",
                 "systemroot": "C:\\WINDOWS",
