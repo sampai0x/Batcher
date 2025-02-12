@@ -5,7 +5,7 @@
 ### Primeiro Passo
 ## Baixe o Python (pode ser qualquer versão!)
 
-## Segundo Passo!
+## Segundo Passo
 ### Coloque o arquivo .bat que deseja desencriptar nesta pasta!
 
 ## Terceiro Passo
