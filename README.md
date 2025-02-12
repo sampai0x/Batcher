@@ -2,7 +2,7 @@
 
 # (Aviso importante coloque esta pasta no seu C:, e não mude o nome!)
 
-### Primeiro Passo
+## Primeiro Passo
 ## Baixe o Python (pode ser qualquer versão!)
 
 ## Segundo Passo
