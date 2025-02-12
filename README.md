@@ -15,6 +15,6 @@
 ### Abra o powershell (como administrador!)
 
 ## Quinto Passo
-### Coloque o seguinte comando, "python  C:\BatchSolver\2.py --file C:\BatchSolver\1.bat" (retire as aspas!)
+### Coloque o seguinte comando, "python  C:\User\2.py --file C:\User\1.bat" (Retire as aspas! O caminho deve ser onde o arquivo estiver armazenado)
 
 ##### (em algus casos pode nao funcionar depende muito do arquivo!)
